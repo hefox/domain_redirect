@@ -1,5 +1,9 @@
 <?php
 
+
+/*
+ * Code from http://drupal.org/node/714986
+ */
 function domain_redirect_init() {
   global $_domain;
   $args = array();

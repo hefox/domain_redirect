@@ -1,0 +1,15 @@
+<?php
+
+function domain_redirect_init() {
+  global $_domain;
+  $args = array();
+  for ($i = 0; $i < 2; $i++) {
+    $args[$i] = arg($i);
+  }
+  if ($args[0] == 'node' && is_numeric($args[1]) && empty($args[2])) {
+    $domain = domain_get_node_match($args[1]);
+    if ($domain['domain_id'] != $_domain['domain_id']) {
+     domain_goto($domain);
+    }
+  }
+}

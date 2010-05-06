@@ -10,10 +10,46 @@ function domain_redirect_init() {
   for ($i = 0; $i < 2; $i++) {
     $args[$i] = arg($i);
   }
-  if ($args[0] == 'node' && is_numeric($args[1]) && empty($args[2])) {
-    $domain = domain_get_node_match($args[1]);
+  /* menu_get_object doesn't seem to work on access denied*/
+  if ($args[0] == 'node' && is_numeric($args[1]) 
+    && empty($args[2]) && $node = node_load($args[1]))  {
+    if (variable_get('domain_redirect_sitesall', TRUE) && !empty($node->domain_site)) {
+      return; 
+    }
+    if (!variable_get('domain_redirect_type_' . $node->type, TRUE)) {
+      return;
+    }
+    $domain = domain_get_node_match($node->nid);  
     if ($domain['domain_id'] != $_domain['domain_id']) {
-     domain_goto($domain);
+      if (variable_get('domain_redirect_access', FALSE)) {
+        if(node_access('view', node_load($args[1]))) {
+          return; 
+        }
+      }
+      /*
+      Messages are not carried over domains when seperate sessions
+      if (variable_get('domain_redirect_message', '')) {
+        drupal_set_message(filter_xss(variable_get('domain_redirect_message', '')));
+      }
+      */
+      domain_goto($domain);
     }
   }
+}
+
+
+
+/**
+* Implementation of hook_menu().
+*/
+function domain_redirect_menu() {
+  $items['admin/build/domain/redirect'] = array(
+    'title' => 'Redirect Settings',
+    'access arguments' => array('administer domains'),
+    'type' => MENU_LOCAL_TASK,
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('domain_redirect_settings'),
+    'file' => 'domain_redirect.admin.inc',
+  );
+  return $items;
 }

@@ -1,4 +1,0 @@
-name = Domain Redirect
-description = Redirects to source domain when accessing a node url on a different domain
-core = 6.x
-dependencies[]  = domain
